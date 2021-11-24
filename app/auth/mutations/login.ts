@@ -1,15 +1,16 @@
-import { SessionContext } from "blitz"
+import { resolver } from "blitz"
 import { authenticateUser, ensureUserConfirmed } from "app/auth/auth-utils"
-import { LoginInput, LoginInputType } from "../validations"
+import db from "db"
+import { Login } from "../validations"
+import { Role } from "types"
 
-export default async function login(input: LoginInputType, ctx: { session?: SessionContext } = {}) {
-  const { email, password } = LoginInput.parse(input)
-
+export default resolver.pipe(resolver.zod(Login), async ({ email, password }, ctx) => {
+  // This throws an error if credentials are invalid
   const user = await authenticateUser(email, password)
 
   await ensureUserConfirmed(user)
 
-  await ctx.session!.create({ userId: user.id, roles: [user.role] })
+  await ctx.session.$create({ userId: user.id, role: user.role as Role })
 
   return user
-}
+})
