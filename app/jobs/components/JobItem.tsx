@@ -149,7 +149,7 @@ export const JobItem = ({
       >
         <div className="px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
-            <div className="text-sm font-medium leading-5 text-indigo-600 truncate">
+            <div className="text-sm font-medium leading-5 text-red-500 truncate">
               {position || "Full-stack Engineer"}
               <span className="hidden text-sm font-normal text-gray-500 sm:inline">
                 {" "}

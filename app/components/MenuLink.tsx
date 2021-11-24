@@ -15,8 +15,10 @@ export const MenuLink = React.forwardRef<
   const className = classNames(
     "px-3 py-2 md:text-sm font-medium text-white rounded block md:inline-block focus:outline-none focus:text-white focus:bg-gray-700 transition-colors duration-100",
     {
-      "bg-gray-900": active,
-      "hover:bg-gray-700": !active,
+      "bg-white": active,
+      "text-red-600": active,
+      "hover:bg-gray-100": !active,
+      "hover:text-red-600": !active,
       "cursor-not-allowed": disabled,
     }
   )

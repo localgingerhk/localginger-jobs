@@ -15,7 +15,7 @@ const DangerIcon = () => (
 )
 
 const PrimaryIcon = () => (
-  <svg className="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -79,7 +79,7 @@ export const ActionDialog = React.forwardRef<
           "flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto rounded-full sm:mx-0 sm:h-10 sm:w-10",
           {
             "bg-red-100": variant === "danger",
-            "bg-indigo-100": variant === "primary",
+            "bg-yellow-200": variant === "primary",
           }
         )}
       >

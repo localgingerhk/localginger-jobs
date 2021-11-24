@@ -1,13 +1,10 @@
 import React, { Suspense } from "react"
-import { BlitzPage, GetServerSideProps, Link } from "blitz"
+import { BlitzPage, Link, Routes } from "blitz"
 import { Button } from "app/components/Button"
 import { AppLayout } from "app/layouts/AppLayout"
 import { JobsList } from "app/jobs/components/JobsList"
-import { ensureAuthenticated } from "app/guards/ensureAuthenticated"
 import { Loading } from "app/components/Loading"
 import getMyJobs from "app/jobs/queries/getMyJobs"
-
-export const getServerSideProps: GetServerSideProps = ensureAuthenticated
 
 const MyJobs: BlitzPage = () => {
   return (
@@ -28,7 +25,7 @@ const MyJobs: BlitzPage = () => {
       <Suspense
         fallback={
           <div className="flex items-end justify-center h-12">
-            <Loading className="w-5 h-5 text-indigo-600" />
+            <Loading className="w-5 h-5 text-red-500" />
           </div>
         }
       >
@@ -39,5 +36,6 @@ const MyJobs: BlitzPage = () => {
 }
 
 MyJobs.getLayout = (page) => <AppLayout title="Manage Jobs">{page}</AppLayout>
+MyJobs.authenticate = { redirectTo: Routes.LoginPage() }
 
 export default MyJobs

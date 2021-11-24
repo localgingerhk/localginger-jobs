@@ -22,7 +22,7 @@ const Admin: BlitzPage = () => {
       <Suspense
         fallback={
           <div className="flex items-end justify-center h-12">
-            <Loading className="w-5 h-5 text-indigo-600" />
+            <Loading className="w-5 h-5 text-red-500" />
           </div>
         }
       >

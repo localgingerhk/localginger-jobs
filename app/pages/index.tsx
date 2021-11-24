@@ -12,7 +12,9 @@ const Home: BlitzPage = () => {
       <div className="flex flex-wrap items-center justify-between -mt-4 -ml-4 sm:flex-no-wrap">
         <div className="mt-4 ml-4">
           <h3 className="text-lg font-medium leading-6 text-gray-900">Post jobs for free</h3>
-          <p className="mt-1 text-sm leading-5 text-gray-500">The first-ever Blitz.js job board.</p>
+          <p className="mt-1 text-sm leading-5 text-gray-500">
+            We exist to help job seekers and companies find each other
+          </p>
         </div>
         <div className="flex-shrink-0 mt-4 ml-4">
           <Link href="/post-job">
@@ -24,7 +26,7 @@ const Home: BlitzPage = () => {
       <Suspense
         fallback={
           <div className="flex items-end justify-center h-12">
-            <Loading className="w-5 h-5 text-indigo-600" />
+            <Loading className="w-5 h-5 text-red-500" />
           </div>
         }
       >
@@ -34,6 +36,6 @@ const Home: BlitzPage = () => {
   )
 }
 
-Home.getLayout = (page) => <AppLayout title="Blitz.js Jobs">{page}</AppLayout>
+Home.getLayout = (page) => <AppLayout title="Jobs in Hong Kong">{page}</AppLayout>
 
 export default Home

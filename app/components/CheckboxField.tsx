@@ -34,7 +34,7 @@ export const CheckboxField = React.forwardRef<HTMLInputElement, CheckboxFieldPro
             aria-invalid={hasError}
             disabled={props.disabled || submitting}
             aria-describedby={hasError ? ariaErrorName : undefined}
-            className="w-4 h-4 mr-2 text-indigo-600 transition duration-150 ease-in-out cursor-pointer form-checkbox disabled:opacity-50"
+            className="w-4 h-4 mr-2 text-red-500 transition duration-150 ease-in-out cursor-pointer form-checkbox disabled:opacity-50"
             {...input}
             {...props}
           />
@@ -47,7 +47,7 @@ export const CheckboxField = React.forwardRef<HTMLInputElement, CheckboxFieldPro
             <svg
               viewBox="0 0 20 20"
               fill="currentColor"
-              className="w-4 h-4 ml-1 text-indigo-900 text-opacity-25"
+              className="w-4 h-4 ml-1 text-red-800 text-opacity-25"
             >
               <path
                 fillRule="evenodd"
