@@ -1,6 +1,12 @@
 import React from "react"
-import { useRouter, ssrQuery, InferGetServerSidePropsType, Link, GetServerSideProps } from "blitz"
-import { ensureAuthenticated } from "app/guards/ensureAuthenticated"
+import {
+  useRouter,
+  ssrQuery,
+  InferGetServerSidePropsType,
+  Link,
+  GetServerSideProps,
+  Routes,
+} from "blitz"
 import { AppLayout } from "app/layouts/AppLayout"
 import JobForm from "app/jobs/components/JobForm"
 import getMyJob from "app/jobs/queries/getMyJob"
@@ -11,11 +17,9 @@ import { SubmitJobInput } from "app/jobs/validations"
 import { Tag } from "app/jobs/tags"
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  await ensureAuthenticated(context)
-
   const job = await ssrQuery(
     getMyJob,
-    { id: Number.parseInt((context!.params!.job as unknown) as string) },
+    { id: Number.parseInt(context!.params!.job as unknown as string) },
     { req: context.req, res: context.res }
   )
 
@@ -44,8 +48,8 @@ const EditJob = ({ job }: InferGetServerSidePropsType<typeof getServerSideProps>
   ) : (
     <div className="sm:p-5">
       <Alert variant="danger">
-        The job you're looking for doesn't exist. <br />
-        If you're lost, you can always{" "}
+        The job you&apos;re looking for doesn&apos;t exist. <br />
+        If you&apos;re lost, you can always{" "}
         <Link href="/" passHref>
           <StyledLink>go home</StyledLink>
         </Link>
@@ -56,5 +60,6 @@ const EditJob = ({ job }: InferGetServerSidePropsType<typeof getServerSideProps>
 }
 
 EditJob.getLayout = (page) => <AppLayout title="Edit Job">{page}</AppLayout>
+EditJob.authenticate = { redirectTo: Routes.LoginPage() }
 
 export default EditJob

@@ -1,9 +1,9 @@
-import React, { useRef } from "react"
-import { Link } from "blitz"
-import { TextField } from "app/components/TextField"
-import { Form, FORM_ERROR } from "app/components/Form"
+import { useRef } from "react"
+import { Link, useMutation } from "blitz"
+import { LabeledTextField } from "app/core/components/LabeledTextField"
+import { Form, FORM_ERROR } from "app/core/components/Form"
 import signup from "app/auth/mutations/signup"
-import { SignupInput, SignupInputType } from "app/auth/validations"
+import { Signup } from "app/auth/validations"
 import { Card } from "app/components/Card"
 import { StyledLink } from "app/components/StyledLink"
 import { Logo } from "app/components/Logo"
@@ -16,6 +16,7 @@ type SignupFormProps = {
 }
 
 export const SignupForm = (props: SignupFormProps) => {
+  const [signupMutation] = useMutation(signup)
   const emailInputRef = useRef<HTMLInputElement>(null)
 
   return (
@@ -39,42 +40,35 @@ export const SignupForm = (props: SignupFormProps) => {
       </div>
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
         <Card>
-          <Form<SignupInputType>
-            submitText="Sign up"
-            schema={SignupInput}
-            initialValues={{ email: undefined, password: undefined, passwordConfirm: undefined }}
-            onSubmit={async (values, form) => {
+          <Form
+            submitText="Create Account"
+            schema={Signup}
+            initialValues={{ email: "", password: "", passwordConfirm: "" }}
+            onSubmit={async (values) => {
               try {
-                await signup(values)
-                props.onSuccess && props.onSuccess()
-              } catch (error) {
-                setTimeout(() => {
-                  form.change("password", undefined)
-                  form.change("passwordConfirm", undefined)
-                  form.resetFieldState("password")
-                  form.resetFieldState("passwordConfirm")
-                  emailInputRef.current?.focus()
-                })
-
-                switch (error.name) {
-                  case "EmailUsedError": {
-                    return { [FORM_ERROR]: `The email ${values.email} is already being used.` }
-                  }
-                  default: {
-                    return {
-                      [FORM_ERROR]: "Sorry, we had an unexpected error. Please try again.",
-                    }
-                  }
+                await signupMutation(values)
+                props.onSuccess?.()
+              } catch (error: any) {
+                if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+                  // This error comes from Prisma
+                  return { [FORM_ERROR]: `The email ${values.email} is already being used.` }
+                } else {
+                  return { [FORM_ERROR]: error.toString() }
                 }
               }
             }}
           >
-            <TextField ref={emailInputRef} name="email" label="Email" placeholder="Email" />
+            <LabeledTextField ref={emailInputRef} name="email" label="Email" placeholder="Email" />
             <div className="mt-6">
-              <TextField name="password" label="Password" placeholder="Password" type="password" />
+              <LabeledTextField
+                name="password"
+                label="Password"
+                placeholder="Password"
+                type="password"
+              />
             </div>
             <div className="mt-6">
-              <TextField
+              <LabeledTextField
                 name="passwordConfirm"
                 label="Repeat Password"
                 placeholder="Repeat Password"

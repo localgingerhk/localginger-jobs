@@ -3,8 +3,9 @@ import React, { useState } from "react"
 import logout from "app/auth/mutations/logout"
 import { MenuLink } from "./MenuLink"
 import { Role } from "app/users/role"
+import { FiLogOut } from "react-icons/fi"
 
-export const AuthNav = ({ authenticated }: { authenticated: boolean }) => {
+export const AuthNav = () => {
   const [logoutLoading, setLogoutLoading] = useState(false)
 
   const router = useRouter()
@@ -27,9 +28,9 @@ export const AuthNav = ({ authenticated }: { authenticated: boolean }) => {
 
   return (
     <ul className="flex flex-col md:space-x-4 md:items-center md:flex-row">
-      {authenticated ? (
+      {session.userId ? (
         <React.Fragment>
-          {session.roles.includes(Role.ADMIN) && (
+          {session.role === Role.ADMIN && (
             <li>
               <MenuLink href="/admin" active={router.pathname === "/admin"} as={Link}>
                 Admin
@@ -43,7 +44,7 @@ export const AuthNav = ({ authenticated }: { authenticated: boolean }) => {
           </li>
           <li>
             <MenuLink href="/" as="button" disabled={logoutLoading} onClick={logoutAction}>
-              Sign out
+              Sign out <FiLogOut className="inline-block ml-2" />
             </MenuLink>
           </li>
         </React.Fragment>
