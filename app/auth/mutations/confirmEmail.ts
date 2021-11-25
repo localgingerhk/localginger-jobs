@@ -1,14 +1,9 @@
 import db from "db"
-import { AuthorizationError, SessionContext } from "blitz"
-import { EmailConfirmationInputType, EmailConfirmationInput } from "app/auth/validations"
+import { AuthorizationError, SessionContext, resolver } from "blitz"
+import { EmailConfirmation } from "app/auth/validations"
 
-export default async function confirmEmail(
-  input: EmailConfirmationInputType,
-  ctx: { session?: SessionContext } = {}
-) {
-  const { token } = EmailConfirmationInput.parse(input)
-
-  const userConfirmationToken = await db.userConfirmationToken.findOne({
+export default resolver.pipe(resolver.zod(EmailConfirmation), async ({ token }, ctx) => {
+  const userConfirmationToken = await db.userConfirmationToken.findFirst({
     where: {
       token,
     },
@@ -37,7 +32,7 @@ export default async function confirmEmail(
     },
   })
 
-  await ctx.session!.create({ userId: user.id, roles: [user.role] })
+  await ctx.session.$create({ userId: user.id, role: user.role as Role })
 
   return user
-}
+})
