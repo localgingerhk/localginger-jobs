@@ -1,28 +1,24 @@
 import { Link, useRouter, useSession } from "blitz"
-import React, { useState } from "react"
+import { useState, Suspense } from "react"
 import classNames from "classnames"
-import { Logo } from "./Logo"
 import { AuthNav } from "./AuthNav"
 import { MenuLink } from "./MenuLink"
+import { Loading } from "./Loading"
+import { SiRoots } from "react-icons/si"
+import { FiExternalLink } from "react-icons/fi"
 
 const NavItems = () => {
   const router = useRouter()
 
   return (
-    <React.Fragment>
+    <>
       <MenuLink as={Link} active={["/", "/post-job"].includes(router.pathname)} href="/">
         Listings
       </MenuLink>
-      <MenuLink as="a" target="_blank" href="https://blitzjs.com/">
-        Blitz.js
+      <MenuLink as="a" target="_blank" href="https://localginger.hk">
+        localginger.hk <FiExternalLink className="inline-block ml-2" />
       </MenuLink>
-      <MenuLink as="a" target="_blank" href="https://github.com/blitz-js/blitz">
-        GitHub
-      </MenuLink>
-      <MenuLink as="a" target="_blank" href="https://github.com/sponsors/blitz-js">
-        Sponsor
-      </MenuLink>
-    </React.Fragment>
+    </>
   )
 }
 
@@ -31,23 +27,19 @@ export const Nav = () => {
 
   const toggleMobileMenuVisible = () => setMobileMenuVisible(!mobileMenuVisible)
 
-  const session = useSession()
-
   return (
-    <nav className="bg-gray-800">
+    <nav className="bg-red-600">
       <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div className="border-b border-gray-700">
+        <div className="">
           <div className="flex items-center justify-between h-16 px-4 sm:px-0">
             <div className="flex items-center">
-              <div className="flex items-center flex-shrink-0">
-                <Link href="/" passHref>
-                  <a>
-                    <Logo className="h-9" />
-                  </a>
-                </Link>
-              </div>
-              <div className="hidden md:block">
-                <div className="flex items-baseline ml-10 space-x-4">
+              <Link href="/" passHref>
+                <a>
+                  <SiRoots color="yellow" size="40" />
+                </a>
+              </Link>
+              <div className="hidden md:block ml-4">
+                <div className="flex items-center space-x-4">
                   <NavItems />
                 </div>
               </div>
@@ -55,7 +47,15 @@ export const Nav = () => {
             <div className="hidden md:block">
               <div className="flex items-center ml-4 md:ml-6">
                 <div className="relative ml-3">
-                  <AuthNav authenticated={session.userId} />
+                  <Suspense
+                    fallback={
+                      <div className="flex items-end justify-center h-12">
+                        <Loading className="w-5 h-5 text-red-500" />
+                      </div>
+                    }
+                  >
+                    <AuthNav />
+                  </Suspense>
                 </div>
               </div>
             </div>
@@ -105,7 +105,15 @@ export const Nav = () => {
           <NavItems />
         </div>
         <div className="px-2 pt-3 pb-3 border-t border-gray-700">
-          <AuthNav authenticated={session.userId} />
+          <Suspense
+            fallback={
+              <div className="flex items-end justify-center h-12">
+                <Loading className="w-5 h-5 text-red-500" />
+              </div>
+            }
+          >
+            <AuthNav />
+          </Suspense>
         </div>
       </div>
     </nav>
