@@ -6,7 +6,7 @@ import login from "app/auth/mutations/login"
 import { Login } from "app/auth/validations"
 import { Card } from "app/components/Card"
 import { StyledLink } from "app/components/StyledLink"
-import { Logo } from "app/components/Logo"
+import { SiRoots } from "react-icons/si"
 import { AuthHeading } from "./AuthHeading"
 import { AuthWrapper } from "./AuthWrapper"
 import { AuthSubheading } from "./AuthSubheading"
@@ -24,7 +24,7 @@ export const LoginForm = (props: LoginFormProps) => {
         <div className="text-center">
           <Link href="/" passHref>
             <a className="inline-block">
-              <Logo className="w-auto h-12" />
+              <SiRoots color="yellow" size="40" />
             </a>
           </Link>
         </div>
@@ -45,7 +45,7 @@ export const LoginForm = (props: LoginFormProps) => {
             initialValues={{ email: undefined, password: undefined }}
             onSubmit={async (values, form) => {
               try {
-                await login(values)
+                await loginMutation(values)
                 props.onSuccess && props.onSuccess()
               } catch (error) {
                 setTimeout(() => {
