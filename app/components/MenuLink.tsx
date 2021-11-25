@@ -13,7 +13,7 @@ export const MenuLink = React.forwardRef<
     PropsWithoutRef<JSX.IntrinsicElements["button"]>
 >(({ children, active, href, disabled, as, ...props }, ref) => {
   const className = classNames(
-    "px-3 py-2 md:text-sm font-medium text-white rounded block md:inline-block focus:outline-none focus:text-white focus:bg-gray-700 transition-colors duration-100",
+    "px-3 py-2 md:text-sm font-medium text-white rounded block md:inline-block focus:outline-none transition-colors duration-100",
     {
       "bg-white": active,
       "text-red-600": active,
