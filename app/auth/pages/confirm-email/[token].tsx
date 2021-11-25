@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react"
-import { BlitzPage, GetServerSideProps, useParam, useRouter } from "blitz"
+import { BlitzPage, useParam, useRouter, Routes } from "blitz"
 import Layout from "app/layouts/Layout"
 import { AuthWrapper } from "app/auth/components/AuthWrapper"
-import { Logo } from "app/components/Logo"
+import { SiRoots } from "react-icons/si"
 import { AuthHeading } from "app/auth/components/AuthHeading"
 import { AuthSubheading } from "app/auth/components/AuthSubheading"
 import confirmEmail from "app/auth/mutations/confirmEmail"
-import { ensureUnauthenticated } from "app/guards/ensureUnauthenticated"
-
-export const getServerSideProps: GetServerSideProps = ensureUnauthenticated
 
 const ConfirmEmail: BlitzPage = () => {
   const token = useParam("token")
@@ -22,7 +19,7 @@ const ConfirmEmail: BlitzPage = () => {
       try {
         await confirmEmail({ token: token as string })
 
-        router.push("/")
+        router.push(Routes.Home())
       } catch (e) {
         if (e.name === "AuthorizationError") {
           setUnauthorized(true)
@@ -34,13 +31,13 @@ const ConfirmEmail: BlitzPage = () => {
   return (
     <AuthWrapper>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Logo className="w-auto h-12 mx-auto" />
+        <SiRoots color="yellow" size="40" className="m-auto" />
 
         <AuthHeading>{unauthorized ? "Whoops 😳" : "Confirming your email"}</AuthHeading>
         <AuthSubheading>
           {unauthorized
             ? "It looks like this link is expired."
-            : "Please wait a few moments while your email is being confirmed."}
+            : "Please wait a few moments while your email is being confirmed"}
         </AuthSubheading>
       </div>
     </AuthWrapper>
@@ -48,5 +45,6 @@ const ConfirmEmail: BlitzPage = () => {
 }
 
 ConfirmEmail.getLayout = (page) => <Layout title="Confirm Email">{page}</Layout>
+ConfirmEmail.redirectAuthenticatedTo = "/"
 
 export default ConfirmEmail
