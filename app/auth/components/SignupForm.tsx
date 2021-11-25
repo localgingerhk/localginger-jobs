@@ -6,7 +6,7 @@ import signup from "app/auth/mutations/signup"
 import { Signup } from "app/auth/validations"
 import { Card } from "app/components/Card"
 import { StyledLink } from "app/components/StyledLink"
-import { Logo } from "app/components/Logo"
+import { SiRoots } from "react-icons/si"
 import { AuthHeading } from "./AuthHeading"
 import { AuthWrapper } from "./AuthWrapper"
 import { AuthSubheading } from "./AuthSubheading"
@@ -25,7 +25,7 @@ export const SignupForm = (props: SignupFormProps) => {
         <div className="text-center">
           <Link href="/" passHref>
             <a className="inline-block">
-              <Logo className="w-auto h-12" />
+              <SiRoots color="yellow" size="40" />
             </a>
           </Link>
         </div>
@@ -49,9 +49,11 @@ export const SignupForm = (props: SignupFormProps) => {
                 await signupMutation(values)
                 props.onSuccess?.()
               } catch (error: any) {
-                if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+                if (error.name === "EmailUsedError") {
                   // This error comes from Prisma
-                  return { [FORM_ERROR]: `The email ${values.email} is already being used.` }
+                  return {
+                    [FORM_ERROR]: `The email ${values.email} already exists. Login instead?`,
+                  }
                 } else {
                   return { [FORM_ERROR]: error.toString() }
                 }
