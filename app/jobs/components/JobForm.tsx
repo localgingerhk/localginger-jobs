@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react"
+import { useMutation } from "blitz"
 import { TextField } from "app/components/TextField"
-import { Form, FORM_ERROR } from "app/components/Form"
-import { SubmitJobInput, SubmitJobInputType } from "../validations"
+import { Form, FormProps, FORM_ERROR } from "app/core/components/Form"
 import createJob from "../mutations/createJob"
 import SelectField from "app/components/SelectField"
 import { JobType, jobTypeLabelMap } from "../jobType"
@@ -12,28 +12,30 @@ import { FormSpy } from "react-final-form"
 import debounce from "lodash.debounce"
 import { JobItem } from "./JobItem"
 import updateJob from "../mutations/updateJob"
+import { z } from "zod"
+import { SubmitJobInputType } from "../validations"
 
-export const JobForm = ({
-  initialValues,
-  jobId,
-  ...props
-}: {
-  onSuccess?: () => void
-  jobId?: number
-  initialValues?: SubmitJobInputType
-}) => {
+type JobFormProps = {
+  jobId: number
+  initialValues: {}
+  onSuccess: () => {}
+}
+
+export function JobForm<S extends z.ZodType<any, any>>(props: FormProps<S>) {
   const [formValues, setFormValues] = useState<SubmitJobInputType>()
+  const [updateJobMutation] = useMutation(updateJob)
+  const [createJobMutation] = useMutation(createJob)
 
-  const editMode = initialValues && jobId
+  const editMode = props.initialValues && props.jobId
 
-  const handleValuesChanged = debounce(function (values: SubmitJobInputType) {
+  const handleValuesChanged = debounce(function (values: S) {
     setFormValues(values)
   }, 250)
 
   const initialValuesComputed = useMemo(
     () =>
       editMode
-        ? initialValues
+        ? props.initialValues
         : {
             type: JobType.FULLTIME,
             tags: Object.keys(Tag).reduce(
@@ -41,22 +43,22 @@ export const JobForm = ({
               {} as { [key in Tag]: boolean }
             ),
           },
-    [initialValues, editMode]
+    [props.initialValues, editMode]
   )
 
   return (
     <div className="-mx-4 -my-5 sm:-mx-6 sm:-my-6 lg:grid lg:grid-cols-12">
       <div className="p-6 mt-5 lg:mt-0 lg:col-span-4">
-        <Form<SubmitJobInputType>
+        <Form
+          {...props}
           submitText={editMode ? "Update job" : "Post Job"}
-          schema={SubmitJobInput}
           initialValues={initialValuesComputed}
           onSubmit={async (values, form) => {
             try {
               if (editMode) {
-                await updateJob({ ...values, id: jobId! })
+                await updateJobMutation({ ...values, id: props.jobId! })
               } else {
-                await createJob(values)
+                await createJobMutation(values)
               }
 
               props.onSuccess && props.onSuccess()
@@ -71,7 +73,7 @@ export const JobForm = ({
             }
           }}
         >
-          <FormSpy<SubmitJobInputType> onChange={(form) => handleValuesChanged(form.values)} />
+          <FormSpy<S> onChange={(form) => handleValuesChanged(form.values)} />
           <TextField name="company" label="Company name" placeholder="My Company" maxLength={40} />
           <div className="mt-6">
             <TextField
