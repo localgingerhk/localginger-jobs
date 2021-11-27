@@ -2,30 +2,19 @@ import { ReactNode, PropsWithoutRef } from "react"
 import { Form as FinalForm, FormProps as FinalFormProps } from "react-final-form"
 import { z } from "zod"
 import { validateZodSchema } from "blitz"
-export { Mutator, FORM_ERROR } from "final-form"
 import { Alert } from "app/components/Alert"
 import { Button } from "app/components/Button"
+export { FORM_ERROR } from "final-form"
 
-type FormProps<FormValues> = {
-  children: ReactNode
-  submitText: string
-  onSubmit: FinalFormProps<FormValues>["onSubmit"]
-  initialValues?: FinalFormProps<FormValues>["initialValues"]
-  schema?: z.ZodType<any, any>
-  mutators?: { [key: string]: Mutator<FormValues> }
-} & Omit<PropsWithoutRef<JSX.IntrinsicElements["form"]>, "onSubmit">
-
-const errorMap: z.ZodErrorMap = (error, ctx) => {
-  if (error.message) return { message: error.message }
-
-  switch (error.code) {
-    case z.ZodErrorCode.invalid_type:
-      if (error.expected === "string" && error.received === "undefined") {
-        return { message: "This field is required" }
-      }
-  }
-
-  return { message: ctx.defaultError }
+export interface FormProps<S extends z.ZodType<any, any>>
+  extends Omit<PropsWithoutRef<JSX.IntrinsicElements["form"]>, "onSubmit"> {
+  /** All your form fields */
+  children?: ReactNode
+  /** Text to display in the submit button */
+  submitText?: string
+  schema?: S
+  onSubmit: FinalFormProps<z.infer<S>>["onSubmit"]
+  initialValues?: FinalFormProps<z.infer<S>>["initialValues"]
 }
 
 export function Form<S extends z.ZodType<any, any>>({
@@ -33,14 +22,12 @@ export function Form<S extends z.ZodType<any, any>>({
   submitText,
   schema,
   initialValues,
-  mutators,
   onSubmit,
   ...props
-}: FormProps<FormValues>) {
+}: FormProps<S>) {
   return (
     <FinalForm
       initialValues={initialValues}
-      mutators={mutators}
       validate={validateZodSchema(schema)}
       onSubmit={onSubmit}
       render={({ handleSubmit, submitting, submitError }) => (
