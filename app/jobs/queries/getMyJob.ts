@@ -1,20 +1,9 @@
-import { SessionContext } from "blitz"
-import db from "db"
-import { SingleJobInput, SingleJobInputType } from "../validations"
+import { resolver } from "blitz"
+import db, { Prisma } from "db"
 
-export default async function getMyJob(
-  input: SingleJobInputType,
-  ctx: { session?: SessionContext } = {}
-) {
-  const { id } = SingleJobInput.parse(input)
-
-  ctx.session!.authorize()
-
-  const [job] = await db.job.findMany({
-    where: {
-      id,
-      userId: ctx.session!.userId,
-    },
+export default resolver.pipe(resolver.authorize(), async (args: Prisma.JobFindUniqueArgs) => {
+  const job = await db.job.findFirst({
+    ...args,
     select: {
       id: true,
       company: true,
@@ -24,8 +13,7 @@ export default async function getMyJob(
       location: true,
       url: true,
     },
-    take: 1,
   })
 
   return job || null
-}
+})
