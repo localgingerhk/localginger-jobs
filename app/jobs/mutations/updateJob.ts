@@ -1,16 +1,8 @@
-import { AuthorizationError, SessionContext } from "blitz"
+import { AuthorizationError, resolver } from "blitz"
 import db from "db"
 import { getActiveTags } from "../tags"
-import { UpdateJobInput, UpdateJobInputType } from "../validations"
 
-export default async function updateJob(
-  input: UpdateJobInputType,
-  ctx: { session?: SessionContext } = {}
-) {
-  ctx.session!.authorize()
-
-  const { tags, id, ...parsedInput } = UpdateJobInput.parse(input)
-
+export default resolver.pipe(resolver.authorize(), async ({ tags, id, ...parsedInput }, ctx) => {
   const [job] = await db.job.findMany({
     where: {
       id,
@@ -32,4 +24,4 @@ export default async function updateJob(
       tags: getActiveTags(tags),
     },
   })
-}
+})
