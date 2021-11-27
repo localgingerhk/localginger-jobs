@@ -1,11 +1,13 @@
-import db from "db"
+import db, { TokenType } from "db"
 import { AuthorizationError, SessionContext, resolver } from "blitz"
 import { EmailConfirmation } from "app/auth/validations"
+import { Role } from "types"
 
 export default resolver.pipe(resolver.zod(EmailConfirmation), async ({ token }, ctx) => {
-  const userConfirmationToken = await db.userConfirmationToken.findFirst({
+  const userConfirmationToken = await db.token.findFirst({
     where: {
-      token,
+      hashedToken: token,
+      type: TokenType.EMAIL_CONFIRMATION,
     },
     select: {
       id: true,
@@ -26,7 +28,7 @@ export default resolver.pipe(resolver.zod(EmailConfirmation), async ({ token }, 
     },
   })
 
-  await db.userConfirmationToken.delete({
+  await db.token.delete({
     where: {
       id: userConfirmationToken.id,
     },

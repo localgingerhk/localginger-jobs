@@ -1,10 +1,12 @@
-import { resolver, SecurePassword } from "blitz"
-import db from "db"
-import { ensureUserEmailNotUsed, hashPassword } from "app/auth/auth-utils"
+import { resolver, SecurePassword, hash256, generateToken } from "blitz"
+import db, { TokenType } from "db"
+import { ensureUserEmailNotUsed } from "app/auth/auth-utils"
 import { Signup } from "app/auth/validations"
 import { Role } from "types"
 import { nanoid } from "nanoid"
 import { userConfirmationNotification } from "../notifications/userConfirmation"
+
+const EMAIL_CONFIRMATION_TOKEN_EXPIRATION_IN_HOURS = 24
 
 export default resolver.pipe(resolver.zod(Signup), async ({ email, password }, ctx) => {
   const formattedEmail = email.toLowerCase()
@@ -17,13 +19,19 @@ export default resolver.pipe(resolver.zod(Signup), async ({ email, password }, c
     select: { id: true, name: true, email: true, role: true },
   })
 
-  const confirmationToken = nanoid(100)
+  const token = generateToken()
+  const hashedToken = hash256(token)
+  const expiresAt = new Date()
+  expiresAt.setHours(expiresAt.getHours() + EMAIL_CONFIRMATION_TOKEN_EXPIRATION_IN_HOURS)
 
-  await userConfirmationNotification.notify(user, { token: confirmationToken })
+  await userConfirmationNotification.notify(user, { token })
 
-  await db.userConfirmationToken.create({
+  await db.token.create({
     data: {
-      token: confirmationToken,
+      hashedToken,
+      type: TokenType.EMAIL_CONFIRMATION,
+      expiresAt,
+      sentTo: user.email,
       user: {
         connect: {
           id: user.id,
