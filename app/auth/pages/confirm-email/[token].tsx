@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { BlitzPage, useParam, useRouter, Routes } from "blitz"
+import { BlitzPage, useParam, useRouter, Routes, useMutation } from "blitz"
 import Layout from "app/layouts/Layout"
 import { AuthWrapper } from "app/auth/components/AuthWrapper"
 import { SiRoots } from "react-icons/si"
@@ -14,10 +14,12 @@ const ConfirmEmail: BlitzPage = () => {
 
   const [unauthorized, setUnauthorized] = useState(false)
 
+  const [confirmEmailMutation] = useMutation(confirmEmail)
+
   useEffect(() => {
     setTimeout(async () => {
       try {
-        await confirmEmail({ token: token as string })
+        await confirmEmailMutation({ token: token as string })
 
         router.push(Routes.Home())
       } catch (e) {
@@ -26,7 +28,7 @@ const ConfirmEmail: BlitzPage = () => {
         }
       }
     }, 2000)
-  }, [token, router])
+  }, [token, router, confirmEmailMutation])
 
   return (
     <AuthWrapper>
