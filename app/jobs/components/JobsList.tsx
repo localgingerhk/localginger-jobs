@@ -2,7 +2,7 @@ import { Job } from "@prisma/client"
 import publishJob from "app/admin/mutations/publishJob"
 import { Button } from "app/components/Button"
 import { StyledLink } from "app/components/StyledLink"
-import { Link, useInfiniteQuery } from "blitz"
+import { Link, useInfiniteQuery, useMutation } from "blitz"
 import React from "react"
 import { JobType } from "../jobType"
 import deleteJob from "../mutations/deleteJob"
@@ -19,16 +19,16 @@ export const JobsList = ({
 }: {
   query: typeof getJobs
 } & Pick<JobItemProps, "withActions" | "withAdminActions">) => {
-  const [groupedJobs, { isFetchingMore, fetchMore, canFetchMore, mutate }] = useInfiniteQuery(
-    query,
-    (page = { take: 100, skip: 0 }) => page,
-    {
-      getFetchMore: (lastGroup) => lastGroup.nextPage,
-    }
-  )
+  const [publishJobMutation] = useMutation(publishJob)
+  const [
+    groupedJobs,
+    { isFetching, isFetchingNextPage, fetchNextPage, hasNextPage, setQueryData },
+  ] = useInfiniteQuery(query, (page = { take: 100, skip: 0 }) => page, {
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  })
 
   const removeItemFromCache: JobAction = async ({ groupIndex, job }) =>
-    mutate(
+    setQueryData(
       groupedJobs.map((group, index) =>
         index === groupIndex
           ? { ...group, jobs: group.jobs.filter((jobItem) => jobItem.id !== job.id) }
@@ -44,7 +44,7 @@ export const JobsList = ({
   }
 
   const handleItemPublish: JobAction = async (options) => {
-    await publishJob({ id: options.job.id })
+    await publishJobMutation({ id: options.job.id })
 
     removeItemFromCache(options)
   }
@@ -86,16 +86,16 @@ export const JobsList = ({
           </div>
         ))}
       </ul>
-      {canFetchMore && (
+      {hasNextPage && (
         <div className="pt-6 mt-6 text-center border-t border-gray-200">
           <Button
             variant="white"
-            onClick={() => fetchMore()}
-            disabled={!canFetchMore || !!isFetchingMore}
+            onClick={() => fetchNextPage()}
+            disabled={!hasNextPage || isFetching || isFetchingNextPage}
           >
-            {isFetchingMore
+            {isFetchingNextPage
               ? "Loading more..."
-              : canFetchMore
+              : hasNextPage
               ? "Load More"
               : "Nothing more to load"}
           </Button>
