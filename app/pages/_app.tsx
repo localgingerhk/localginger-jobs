@@ -8,7 +8,6 @@ import {
   useQueryErrorResetBoundary,
   useRouter,
 } from "blitz"
-import { queryCache } from "react-query"
 import LoginForm from "app/auth/components/LoginForm"
 
 import "app/styles/index.css"
