@@ -1,32 +1,34 @@
-import { PaginationInput, PaginationInputType } from "app/validations"
-import { SessionContext } from "blitz"
-import db from "db"
+import { paginate, resolver } from "blitz"
+import db, { Prisma } from "db"
 
-export default async function getMyJobs(
-  input: PaginationInputType,
-  ctx: { session?: SessionContext } = {}
-) {
-  ctx.session!.authorize()
+interface GetJobsInput
+  extends Pick<Prisma.JobFindManyArgs, "where" | "orderBy" | "skip" | "take"> {}
 
-  const { skip, take } = PaginationInput.parse(input)
-
-  const jobs = await db.job.findMany({
+export default resolver.pipe(async ({ where, orderBy, skip = 0, take = 25 }: GetJobsInput) => {
+  // TODO: in multi-tenant app, you must add validation to ensure correct tenant
+  const {
+    items: jobs,
+    hasMore,
+    nextPage,
+    count,
+  } = await paginate({
     skip,
     take,
-    where: {
-      userId: ctx.session!.userId,
-    },
+    count: () => db.job.count({ where }),
+    query: (paginateArgs) =>
+      db.job.findMany({
+        ...paginateArgs,
+        where,
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
   })
-
-  const count = await db.job.count()
-
-  const hasMore = typeof take === "number" ? skip + take < count : false
-
-  const nextPage = hasMore ? { take, skip: skip + take! } : null
 
   return {
     jobs,
     nextPage,
     hasMore,
+    count,
   }
-}
+})
