@@ -26,7 +26,6 @@ export const AppLayout = ({ title, children }: LayoutProps) => (
       <footer>
         <div className="py-6 text-sm text-center text-gray-600">
           <StyledLink
-            as="a"
             target="_blank"
             href="https://github.com/localgingerhk/localginger-jobs"
             className="inline-block"
