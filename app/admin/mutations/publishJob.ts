@@ -7,7 +7,7 @@ export default async function publishJob(
   input: IdInputType,
   ctx: { session?: SessionContext } = {}
 ) {
-  ctx.session!.authorize(Role.ADMIN)
+  ctx.session.$isAuthorized(Role.ADMIN)
 
   const { id } = IdInput.parse(input)
 
