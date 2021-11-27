@@ -1,4 +1,4 @@
-import { Link, useRouter, useSession } from "blitz"
+import { Link, useRouter, useSession, useMutation } from "blitz"
 import React, { useState } from "react"
 import logout from "app/auth/mutations/logout"
 import { MenuLink } from "./MenuLink"
@@ -8,6 +8,8 @@ import { FiLogOut } from "react-icons/fi"
 export const AuthNav = () => {
   const [logoutLoading, setLogoutLoading] = useState(false)
 
+  const [logoutMutation] = useMutation(logout)
+
   const router = useRouter()
 
   const logoutAction = async () => {
@@ -16,7 +18,7 @@ export const AuthNav = () => {
     setLogoutLoading(true)
 
     try {
-      await logout()
+      await logoutMutation()
 
       router.push("/")
     } finally {
