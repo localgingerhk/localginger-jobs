@@ -18,26 +18,18 @@ enum UserRole {
 }
 
 model User {
-  id                    Int                     @id @default(autoincrement())
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  confirmedAt           DateTime?
-  name                  String?
-  email                 String                  @unique
-  hashedPassword        String?
-  role                  UserRole                @default(USER)
-  sessions              Session[]
-  UserConfirmationToken UserConfirmationToken[]
-  Job                   Job[]
-}
+  id             Int       @id @default(autoincrement())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  confirmedAt    DateTime?
+  name           String?
+  email          String    @unique
+  hashedPassword String?
+  role           UserRole  @default(USER)
+  Job            Job[]
 
-model UserConfirmationToken {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  token     String   @unique
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  tokens   Token[]
+  sessions Session[]
 }
 
 enum JobType {
@@ -72,4 +64,24 @@ model Session {
   antiCSRFToken      String?
   publicData         String?
   privateData        String?
+}
+
+enum TokenType {
+  RESET_PASSWORD
+  EMAIL_CONFIRMATION
+}
+
+model Token {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  hashedToken String
+  type        TokenType
+  expiresAt   DateTime
+  sentTo      String
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  @@unique([hashedToken, type])
 }
