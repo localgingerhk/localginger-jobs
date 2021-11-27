@@ -6,14 +6,14 @@ export default async function deleteJob(
   input: IdInputType,
   ctx: { session?: SessionContext } = {}
 ) {
-  ctx.session!.authorize()
+  ctx.session?.$authorize()
 
   const { id } = IdInput.parse(input)
 
   await db.job.deleteMany({
     where: {
       id,
-      userId: ctx.session!.userId,
+      userId: ctx.session?.userId || undefined,
     },
   })
 }
