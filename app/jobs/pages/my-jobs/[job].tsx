@@ -1,33 +1,22 @@
-import React from "react"
-import {
-  useRouter,
-  ssrQuery,
-  InferGetServerSidePropsType,
-  Link,
-  GetServerSideProps,
-  Routes,
-} from "blitz"
+import React, { Suspense } from "react"
+import { useRouter, Link, Routes, useParam, useQuery } from "blitz"
 import { AppLayout } from "app/layouts/AppLayout"
 import JobForm from "app/jobs/components/JobForm"
 import getMyJob from "app/jobs/queries/getMyJob"
 import { StyledLink } from "app/components/StyledLink"
 import { Alert } from "app/components/Alert"
 import { JobType } from "app/jobs/jobType"
-import { SubmitJobInput } from "app/jobs/validations"
 import { Tag } from "app/jobs/tags"
+import { Loading } from "app/components/Loading"
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const job = await ssrQuery(
-    getMyJob,
-    { id: Number.parseInt(context!.params!.job as unknown as string) },
-    { req: context.req, res: context.res }
-  )
-
-  return { props: { job } }
-}
-
-const EditJob = ({ job }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const EditJobComponent = () => {
   const router = useRouter()
+  const jobId = useParam("job", "number")
+  const [job] = useQuery(getMyJob, {
+    where: {
+      id: jobId,
+    },
+  })
 
   return job ? (
     <JobForm
@@ -36,13 +25,7 @@ const EditJob = ({ job }: InferGetServerSidePropsType<typeof getServerSideProps>
       initialValues={{
         ...job,
         type: job.type as JobType,
-        tags: Object.keys(SubmitJobInput.shape.tags.shape).reduce(
-          (result, tag) => ({
-            ...result,
-            [tag]: (job.tags as Tag[]).findIndex((item) => item === tag) > -1,
-          }),
-          {} as { [key in Tag]: boolean }
-        ),
+        tags: {},
       }}
     />
   ) : (
@@ -58,6 +41,18 @@ const EditJob = ({ job }: InferGetServerSidePropsType<typeof getServerSideProps>
     </div>
   )
 }
+
+const EditJob = () => (
+  <Suspense
+    fallback={
+      <div className="flex items-end justify-center h-12">
+        <Loading className="w-5 h-5 text-red-500" />
+      </div>
+    }
+  >
+    <EditJobComponent />
+  </Suspense>
+)
 
 EditJob.getLayout = (page) => <AppLayout title="Edit Job">{page}</AppLayout>
 EditJob.authenticate = { redirectTo: Routes.LoginPage() }
