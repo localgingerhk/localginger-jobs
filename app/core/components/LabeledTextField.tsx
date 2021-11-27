@@ -22,7 +22,7 @@ export const LabeledTextField = forwardRef<HTMLInputElement, LabeledTextFieldPro
       meta: { error, touched, submitFailed, submitError, submitting },
     } = useField(name, {
       parse:
-        props.type === "number"
+        type === "number"
           ? (Number as any)
           : // Converting `""` to `null` ensures empty values will be set to null in the DB
             (v) => (v === "" ? null : v),
