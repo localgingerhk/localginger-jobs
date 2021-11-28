@@ -6,19 +6,12 @@ import { Link, useInfiniteQuery, useMutation } from "blitz"
 import React from "react"
 import { JobType } from "../jobType"
 import deleteJob from "../mutations/deleteJob"
-import getJobs from "../queries/getJobs"
 import { Tag } from "../tags"
 import { JobItem, JobItemProps } from "./JobItem"
 
 type JobAction = (options: { groupIndex: number; job: Job }) => Promise<any>
 
-export const JobsList = ({
-  query,
-  withActions = false,
-  withAdminActions = false,
-}: {
-  query: typeof getJobs
-} & Pick<JobItemProps, "withActions" | "withAdminActions">) => {
+export const JobsList = ({ query, withActions = false, withAdminActions = false }) => {
   const [publishJobMutation] = useMutation(publishJob)
   const [
     groupedJobs,
