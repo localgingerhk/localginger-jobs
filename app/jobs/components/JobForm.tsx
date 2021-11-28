@@ -21,14 +21,14 @@ type JobFormProps = {
   onSuccess: () => {}
 }
 
-export function JobForm<S extends z.ZodType<any, any>>(props: FormProps<S>) {
+export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
   const [formValues, setFormValues] = useState<SubmitJobInputType>()
   const [updateJobMutation] = useMutation(updateJob)
   const [createJobMutation] = useMutation(createJob)
 
   const editMode = props.initialValues && props.jobId
 
-  const handleValuesChanged = debounce(function (values: S) {
+  const handleValuesChanged = debounce(function (values) {
     setFormValues(values)
   }, 250)
 
