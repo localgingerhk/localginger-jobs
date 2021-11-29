@@ -40,5 +40,6 @@ const Admin: BlitzPage = () => (
 )
 
 Admin.getLayout = (page) => <AppLayout title="Dashboard">{page}</AppLayout>
+Admin.authenticate = { redirectTo: Routes.LoginPage() }
 
 export default Admin
