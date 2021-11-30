@@ -62,7 +62,7 @@ export const Nav = () => {
             <div className="flex -mr-2 md:hidden">
               <button
                 onClick={toggleMobileMenuVisible}
-                className="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:bg-gray-700 focus:text-white"
+                className="inline-flex items-center justify-center p-2 text-white rounded-md hover:text-red-500 hover:bg-white focus:outline-none focus:bg-white focus:text-red-500"
               >
                 <svg
                   className="block w-6 h-6"
@@ -97,14 +97,14 @@ export const Nav = () => {
       </div>
 
       <div
-        className={classNames("border-b border-gray-700 md:hidden", {
+        className={classNames("border-b border-white md:hidden", {
           hidden: !mobileMenuVisible,
         })}
       >
         <div className="px-2 py-3 space-y-1 sm:px-3">
           <NavItems />
         </div>
-        <div className="px-2 pt-3 pb-3 border-t border-gray-700">
+        <div className="px-2 pt-3 pb-3 border-t border-white">
           <Suspense
             fallback={
               <div className="flex items-end justify-center h-12">
