@@ -44,7 +44,7 @@ model Job {
   publishedAt DateTime?
   company     String
   position    String
-  tags        Json
+  tags        Tag[]
   type        JobType   @default(FULLTIME)
   location    String
   url         String
@@ -84,4 +84,10 @@ model Token {
   userId Int
 
   @@unique([hashedToken, type])
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  jobs Job[]  @relation(references: [id])
 }
