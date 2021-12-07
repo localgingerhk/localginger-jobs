@@ -2,7 +2,7 @@ import { AuthorizationError, resolver } from "blitz"
 import db from "db"
 
 export default resolver.pipe(resolver.authorize(), async ({ tags, id, ...parsedInput }, ctx) => {
-  const [job] = await db.job.findMany({
+  const job = await db.job.findFirst({
     where: {
       id,
       userId: ctx.session!.userId,
@@ -13,10 +13,9 @@ export default resolver.pipe(resolver.authorize(), async ({ tags, id, ...parsedI
     throw new AuthorizationError()
   }
 
-  await db.job.updateMany({
+  await db.job.update({
     where: {
       id,
-      userId: ctx.session!.userId,
     },
     data: {
       ...parsedInput,
