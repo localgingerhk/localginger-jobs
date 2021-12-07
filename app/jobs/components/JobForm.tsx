@@ -5,7 +5,6 @@ import { Form, FormProps, FORM_ERROR } from "app/core/components/Form"
 import createJob from "../mutations/createJob"
 import SelectField from "app/components/SelectField"
 import { JobType, jobTypeLabelMap } from "../jobType"
-import CheckboxField from "app/components/CheckboxField"
 import { FieldLabel } from "app/components/FieldLabel"
 import { FormSpy } from "react-final-form"
 import debounce from "lodash.debounce"
@@ -18,9 +17,9 @@ import getTags from "app/tags/queries/getTags"
 import createTag from "app/tags/mutations/createTag"
 
 type JobFormProps = {
-  jobId: number
-  initialValues: {}
-  onSuccess: () => {}
+  jobId?: number
+  initialValues?: {}
+  onSuccess: Function
 }
 
 export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
