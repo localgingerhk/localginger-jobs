@@ -1,27 +1,14 @@
 import { IdInput } from "app/validations"
 import * as z from "zod"
 import { jobTypeEnum } from "./jobType"
-import { Tag, tagLabelMap } from "./tags"
 
 export const SubmitJobInput = z.object({
-  company: z.string().max(40),
-  position: z.string().max(40),
-  tags: z
-    .object({
-      [Tag.BLITZ]: z.boolean(),
-      [Tag.REACT]: z.boolean(),
-      [Tag.AWS]: z.boolean(),
-      [Tag.VERCEL]: z.boolean(),
-      [Tag.NEXT]: z.boolean(),
-      [Tag.RENDER]: z.boolean(),
-    })
-    .refine((tags) => tags[Tag.BLITZ] === true, {
-      message: `The ${tagLabelMap[Tag.BLITZ]} tag is required`,
-      path: [`tags.${Tag.BLITZ}`],
-    }),
+  company: z.string().max(40).optional(),
+  position: z.string().max(40).optional(),
+  tags: z.string().optional(),
   type: jobTypeEnum,
-  location: z.string().max(30),
-  url: z.string().url(),
+  location: z.string().max(30).optional(),
+  url: z.string().url().optional(),
 })
 
 export type SubmitJobInputType = z.infer<typeof SubmitJobInput>

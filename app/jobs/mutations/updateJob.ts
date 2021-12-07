@@ -1,6 +1,5 @@
 import { AuthorizationError, resolver } from "blitz"
 import db from "db"
-import { getActiveTags } from "../tags"
 
 export default resolver.pipe(resolver.authorize(), async ({ tags, id, ...parsedInput }, ctx) => {
   const [job] = await db.job.findMany({
@@ -21,7 +20,9 @@ export default resolver.pipe(resolver.authorize(), async ({ tags, id, ...parsedI
     },
     data: {
       ...parsedInput,
-      tags: getActiveTags(tags),
+      tags: {
+        connect: tags.map((tag) => ({ name: tag })),
+      },
     },
   })
 })

@@ -7,7 +7,9 @@ export default resolver.pipe(resolver.authorize(), async ({ tags, ...parsedInput
   const job = await db.job.create({
     data: {
       ...parsedInput,
-      tags: getActiveTags(tags),
+      tags: {
+        connect: tags.map((tag) => ({ name: tag })),
+      },
       user: {
         connect: {
           id: ctx.session?.userId || undefined,

@@ -24,6 +24,9 @@ export default resolver.pipe(async ({ where, orderBy, skip = 0, take = 25 }: Get
             not: null,
           },
         },
+        include: {
+          tags: true,
+        },
         orderBy: {
           createdAt: "desc",
         },

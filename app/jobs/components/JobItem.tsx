@@ -4,7 +4,6 @@ import React, { PropsWithoutRef } from "react"
 import { format } from "date-fns"
 import { TooltipReference, Tooltip, useTooltipState } from "reakit/Tooltip"
 import { JobType, jobTypeLabelMap } from "../jobType"
-import { Tag, tagLabelMap } from "../tags"
 import { Dialog, DialogDisclosure, useDialogState } from "reakit/Dialog"
 import { ActionDialog } from "app/components/ActionDialog"
 import { Badge } from "app/components/Badge"
@@ -19,7 +18,7 @@ export interface JobItemProps extends PropsWithoutRef<JSX.IntrinsicElements["a"]
   location?: string
   type: JobType
   date?: Date | null
-  tags: Tag[] | null
+  tags: string
   onDelete?: () => Promise<any>
   onPublish?: () => Promise<any>
 }
@@ -103,6 +102,8 @@ export const JobItem = ({
     animated: 100,
   })
 
+  let tagsArray = tags ? tags.split(",") : []
+
   return (
     <li
       className={classNames("flex list-none md:flex-row", {
@@ -184,19 +185,15 @@ export const JobItem = ({
                     clipRule="evenodd"
                   />
                 </svg>
-                {tags &&
-                  tags
-                    .slice(0, 3)
-                    .map((tag) => tagLabelMap[tag])
-                    .join(", ")}
-                {tags && tags.length > 3 && (
+                {tagsArray && tagsArray.slice(0, 3).join(", ")}
+                {tagsArray && tagsArray.length > 3 && (
                   <React.Fragment>
                     <TooltipReference {...tooltip} as="span" className="focus:outline-none">
                       <button
                         className="ml-1 italic border-b-2 border-gray-300 border-dotted focus:outline-none"
                         onClick={(e) => e.preventDefault()}
                       >
-                        + {tags.length - 3} more
+                        + {tagsArray.length - 3} more
                       </button>
                     </TooltipReference>
                     <Tooltip {...tooltip}>
@@ -210,8 +207,8 @@ export const JobItem = ({
                         leaveTo="opacity-0"
                       >
                         <ul className="px-3 py-2 text-sm list-none bg-white rounded-lg shadow">
-                          {tags.slice(3).map((tag, index) => (
-                            <li key={index}>{tagLabelMap[tag]}</li>
+                          {tagsArray.slice(3).map((tag, index) => (
+                            <li key={index}>{tag}</li>
                           ))}
                         </ul>
                       </Transition>

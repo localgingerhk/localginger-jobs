@@ -6,8 +6,7 @@ import { Link, useInfiniteQuery, useMutation } from "blitz"
 import React from "react"
 import { JobType } from "../jobType"
 import deleteJob from "../mutations/deleteJob"
-import { Tag } from "../tags"
-import { JobItem, JobItemProps } from "./JobItem"
+import { JobItem } from "./JobItem"
 
 type JobAction = (options: { groupIndex: number; job: Job }) => Promise<any>
 
@@ -68,7 +67,7 @@ export const JobsList = ({ query, withActions = false, withAdminActions = false 
                 position={job.position}
                 type={JobType[job.type]}
                 location={job.location}
-                tags={job.tags as Tag[]}
+                tags={job.tags ? job.tags.map((tag) => tag.name).join(",") : ""}
                 href={job.url}
                 withActions={withActions}
                 withAdminActions={withAdminActions}

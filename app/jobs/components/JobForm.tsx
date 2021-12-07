@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react"
-import { useMutation } from "blitz"
+import { useMutation, invoke } from "blitz"
 import { TextField } from "app/components/TextField"
 import { Form, FormProps, FORM_ERROR } from "app/core/components/Form"
 import createJob from "../mutations/createJob"
@@ -7,13 +7,15 @@ import SelectField from "app/components/SelectField"
 import { JobType, jobTypeLabelMap } from "../jobType"
 import CheckboxField from "app/components/CheckboxField"
 import { FieldLabel } from "app/components/FieldLabel"
-import { getActiveTags, Tag, tagLabelMap } from "../tags"
 import { FormSpy } from "react-final-form"
 import debounce from "lodash.debounce"
 import { JobItem } from "./JobItem"
 import updateJob from "../mutations/updateJob"
 import { z } from "zod"
 import { SubmitJobInputType } from "../validations"
+import AsyncCreatableSelect from "react-select/async-creatable"
+import getTags from "app/tags/queries/getTags"
+import createTag from "app/tags/mutations/createTag"
 
 type JobFormProps = {
   jobId: number
@@ -25,6 +27,9 @@ export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
   const [formValues, setFormValues] = useState<SubmitJobInputType>()
   const [updateJobMutation] = useMutation(updateJob)
   const [createJobMutation] = useMutation(createJob)
+  const [createTagMutation] = useMutation(createTag)
+  const [selectedTags, setSelectedTags] = useState<{ value: string; label: string }[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const editMode = props.initialValues && props.jobId
 
@@ -38,13 +43,36 @@ export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
         ? props.initialValues
         : {
             type: JobType.FULLTIME,
-            tags: Object.keys(Tag).reduce(
-              (result, tag) => ({ ...result, [tag]: tag === Tag.BLITZ }),
-              {} as { [key in Tag]: boolean }
-            ),
           },
     [props.initialValues, editMode]
   )
+
+  const promiseOptions = (inputValue: string) => {
+    return new Promise(async (resolve) => {
+      const result = await invoke(getTags, { where: { name: { contains: inputValue } } })
+      const tags = result.tags.map((tag) => ({ value: tag.name, label: tag.name }))
+      resolve(tags)
+    })
+  }
+
+  const onCreateTag = async (inputValue: string) => {
+    setIsLoading(true)
+    const newOption = await createTagMutation({
+      name: inputValue,
+    })
+    setSelectedTags([
+      ...selectedTags,
+      {
+        value: newOption.name,
+        label: newOption.name,
+      },
+    ])
+    setIsLoading(false)
+  }
+
+  const onChangeTags = (selected) => {
+    setSelectedTags(selected)
+  }
 
   return (
     <div className="-mx-4 -my-5 sm:-mx-6 sm:-my-6 lg:grid lg:grid-cols-12">
@@ -53,12 +81,16 @@ export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
           {...props}
           submitText={editMode ? "Update job" : "Post Job"}
           initialValues={initialValuesComputed}
-          onSubmit={async (values, form) => {
+          onSubmit={async (values) => {
+            const valuesWithTags = {
+              ...values,
+              tags: formValues?.tags ? formValues.tags.split(",") : [],
+            }
             try {
               if (editMode) {
-                await updateJobMutation({ ...values, id: props.jobId! })
+                await updateJobMutation({ ...valuesWithTags, id: props.jobId! })
               } else {
-                await createJobMutation(values)
+                await createJobMutation(valuesWithTags)
               }
 
               props.onSuccess && props.onSuccess()
@@ -73,7 +105,14 @@ export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
             }
           }}
         >
-          <FormSpy<S> onChange={(form) => handleValuesChanged(form.values)} />
+          <FormSpy<S>
+            onChange={(form) => {
+              handleValuesChanged({
+                ...form.values,
+                tags: selectedTags.map((tag) => tag.value).join(","),
+              })
+            }}
+          />
           <TextField name="company" label="Company name" placeholder="My Company" maxLength={40} />
           <div className="mt-6">
             <TextField
@@ -110,16 +149,17 @@ export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
           </div>
           <div className="mt-6">
             <FieldLabel>Tags</FieldLabel>
-            <div className="grid grid-cols-2 gap-4 mt-3 sm:grid-cols-3">
-              {Object.keys(Tag).map((tag) => (
-                <CheckboxField
-                  key={tag}
-                  disabled={tag === Tag.BLITZ}
-                  name={`tags.${tag}`}
-                  label={tagLabelMap[tag]}
-                />
-              ))}
-            </div>
+            <AsyncCreatableSelect
+              isMulti
+              isClearable
+              isDisabled={isLoading}
+              isLoading={isLoading}
+              onCreateOption={onCreateTag}
+              loadOptions={promiseOptions}
+              noOptionsMessage={() => "Type to search tags..."}
+              value={selectedTags}
+              onChange={onChangeTags}
+            />
           </div>
         </Form>
       </div>
@@ -133,7 +173,7 @@ export function JobForm<S extends z.ZodType<any, any>>(props: JobFormProps) {
               position={formValues?.position}
               type={formValues!.type}
               location={formValues.location}
-              tags={getActiveTags(formValues!.tags)}
+              tags={formValues?.tags || ""}
               href="/"
               preview
               onClick={(e) => e.preventDefault()}
